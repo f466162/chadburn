@@ -13,7 +13,6 @@ import (
 )
 
 const (
-	//logFormat     = "%{time} %{color} %{shortfile} ▶ %{level}%{color:reset} %{message}"
 	logModule     = "ofelia"
 	jobExec       = "job-exec"
 	jobRun        = "job-run"
