@@ -164,10 +164,27 @@ docker run -it --rm \
 ```
 
 ### Logging
+
 **Chadburn** comes with three different logging drivers that can be configured in the `[global]` section:
 - `mail` to send mails
 - `save` to save structured execution reports to a directory
 - `slack` to send messages via a slack webhook
+
+In addition, Chadburn logs to standard output (stdout). The log format and log level for the standard output logging can be configured in the global section of the configuration file:
+
+```ini
+[global]
+log-format = "%{time} %{level} %{pid} [%{shortfile:25s}] --- %{message}"
+log-level = "3"
+```
+
+The example shows the default values. If `log-format` and `log-level` are not set, these values are used. In order to restore the "old" behavior of Chadburn use the following values:
+
+```ini
+[global]
+log-format = "%{time} %{color} %{shortfile} ▶ %{level}%{color:reset} %{message}"
+log-level = "5"
+```
 
 #### Options
 - `smtp-host` - address of the SMTP server.
@@ -183,6 +200,9 @@ docker run -it --rm \
 
 - `slack-webhook` - URL of the slack webhook.
 - `slack-only-on-error` - only send a slack message if the execution was not successful.
+
+- `log-format` - Format string for logging to stdout ([Reference](https://pkg.go.dev/github.com/op/go-logging#Formatter))
+- `log-level` - Log level for logging to stdout ([Reference](https://pkg.go.dev/github.com/op/go-logging#Level))
 
 ### Overlap
 **Chadburn** can prevent that a job is run twice in parallel (e.g. if the first execution didn't complete before a second execution was scheduled. If a job has the option `no-overlap` set, it will not be run concurrently. 

@@ -13,7 +13,8 @@ import (
 )
 
 const (
-	logFormat     = "%{time} %{color} %{shortfile} ▶ %{level}%{color:reset} %{message}"
+	//logFormat     = "%{time} %{color} %{shortfile} ▶ %{level}%{color:reset} %{message}"
+	logModule     = "ofelia"
 	jobExec       = "job-exec"
 	jobRun        = "job-run"
 	jobServiceRun = "job-service-run"
@@ -28,6 +29,8 @@ type Config struct {
 		middlewares.SlackConfig `mapstructure:",squash"`
 		middlewares.SaveConfig  `mapstructure:",squash"`
 		middlewares.MailConfig  `mapstructure:",squash"`
+		LogFormat               string `gcfg:"log-format" default:"%{time} %{level} %{pid} [%{shortfile:25s}] --- %{message}"`
+		LogLevel                int    `gcfg:"log-level" default:"3"` // WARNING, see https://pkg.go.dev/github.com/op/go-logging#Formatter
 	}
 	ExecJobs    map[string]*ExecJobConfig    `gcfg:"job-exec" mapstructure:"job-exec,squash"`
 	RunJobs     map[string]*RunJobConfig     `gcfg:"job-run" mapstructure:"job-run,squash"`
@@ -135,11 +138,13 @@ func (c *Config) buildDockerClient() (*docker.Client, error) {
 
 func (c *Config) buildLogger() core.Logger {
 	stdout := logging.NewLogBackend(os.Stdout, "", 0)
+
 	// Set the backends to be used.
 	logging.SetBackend(stdout)
-	logging.SetFormatter(logging.MustStringFormatter(logFormat))
+	logging.SetFormatter(logging.MustStringFormatter(c.Global.LogFormat))
+	logging.SetLevel(logging.Level(c.Global.LogLevel), logModule)
 
-	return logging.MustGetLogger("ofelia")
+	return logging.MustGetLogger(logModule)
 }
 
 func (c *Config) buildSchedulerMiddlewares(sh *core.Scheduler) {
